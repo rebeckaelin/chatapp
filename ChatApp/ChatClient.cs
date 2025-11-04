@@ -39,7 +39,7 @@ public class ChatClient
       
         // Console.WriteLine($"[Debug] Sending message: {message}");
         await _client.EmitAsync("chatMessage", message);
-        // Console.WriteLine("[Debug] Message sent");
+        Console.WriteLine("[Debug] Message sent");
         
     }
 }
