@@ -1,0 +1,17 @@
+# Build results
+bin/
+obj/
+out/
+
+# Rider
+.idea/
+*.iml
+
+# Visual Studio user files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Other
+TestResults/
