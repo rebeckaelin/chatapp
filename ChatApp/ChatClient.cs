@@ -18,15 +18,19 @@ public class ChatClient
     {
         _client.OnConnected += async (sender, e) =>
         {
-            await _client.EmitAsync("join", _username);
+            await _client.EmitAsync("rJoin", _username);
         };
         
         _client.OnDisconnected += (sender, e) =>
         {
-           Console.WriteLine("Disconnected from server"); 
+            var statusMessage = new StatusMessage
+            {
+                Status = "Disconnected from server."
+            };
+            DisplayMessage(statusMessage);
         };
         
-        _client.On("chatmessage", (Action<SocketIOResponse>)(response =>
+        _client.On("rChat", (Action<SocketIOResponse>)(response =>
         {
             try
             {
@@ -50,7 +54,7 @@ public class ChatClient
             DisplayMessage(statusMsg);
         });
         
-        _client.On("join", response =>
+        _client.On("rJoin", response =>
         {
             var username = response.GetValue<string>();
             var joinMsg = new SystemMessage 
@@ -61,7 +65,7 @@ public class ChatClient
             DisplayMessage(joinMsg);
         });
 
-        _client.On("leave", response =>
+        _client.On("rLeave", response =>
         {
             try 
             {
@@ -75,7 +79,7 @@ public class ChatClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Debug] Error: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
             }
         });
     }
@@ -94,12 +98,12 @@ public class ChatClient
             };
             
             Console.WriteLine(chatMessage.FormatDisplay());
-            await _client.EmitAsync("chatmessage", chatMessage);
+            await _client.EmitAsync("rChat", chatMessage);
         }
 
         public async Task DisconnectAsync()
         {
-            await _client.EmitAsync("leave", _username);
+            await _client.EmitAsync("rLeave", _username);
             await _client.DisconnectAsync();
         }
         private void DisplayMessage(BaseMessage message)

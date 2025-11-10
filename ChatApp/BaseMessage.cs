@@ -6,8 +6,8 @@ public abstract class BaseMessage
 
     public abstract string FormatDisplay();
 
-    public virtual string GetMessageType()
-    {
-        return this.GetType().Name;
-    }
+    // public virtual string GetMessageType()
+    // {
+    //     return this.GetType().Name;
+    // }
 }

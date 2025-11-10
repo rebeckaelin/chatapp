@@ -22,13 +22,18 @@ class Program
         
         Console.Clear();
         Console.WriteLine($"Welcome to rCHAT - Connected as {username}");
-        // Console.WriteLine($"Connected as {username}");
-        Console.WriteLine("Type your message here and press Enter, type '/exit' to quit.\n");
+        Console.WriteLine("Type your message here and press Enter, type '/help' for commands.\n");
         
         while (true)
         {
             var input = Console.ReadLine();
 
+            if (input == "/help")
+            {
+                ShowHelp();
+                continue;
+            }
+            
             if (input == "/exit")
             {
                 await chat.DisconnectAsync();
@@ -44,5 +49,13 @@ class Program
             }
         }
         Console.WriteLine("Goodbye!");
+    }
+
+    static void ShowHelp()
+    {
+        Console.WriteLine("\n--- Available Commands ---");
+        Console.WriteLine("/help  - Show this menu");
+        Console.WriteLine("/exit  - Leave the chat");
+        Console.WriteLine("--------------------------\n");
     }
 }
