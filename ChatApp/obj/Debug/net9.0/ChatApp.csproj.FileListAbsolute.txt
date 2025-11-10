@@ -18,3 +18,4 @@ C:\Users\rebec\Documents\Medieinstitutet\C#\ChatApp\ChatApp\obj\Debug\net9.0\ref
 C:\Users\rebec\Documents\Medieinstitutet\C#\ChatApp\ChatApp\obj\Debug\net9.0\ChatApp.pdb
 C:\Users\rebec\Documents\Medieinstitutet\C#\ChatApp\ChatApp\obj\Debug\net9.0\ChatApp.genruntimeconfig.cache
 C:\Users\rebec\Documents\Medieinstitutet\C#\ChatApp\ChatApp\obj\Debug\net9.0\ref\ChatApp.dll
+C:\Users\rebec\Documents\Medieinstitutet\C#\ChatApp\ChatApp\obj\Debug\net9.0\ChatApp.sourcelink.json

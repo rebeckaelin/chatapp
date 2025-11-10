@@ -3,43 +3,108 @@ using SocketIOClient;
 
 public class ChatClient
 {
-    private static readonly SocketIO _client;
-    private static readonly string Path = "/sys25d";
+    private readonly SocketIO _client;
+    private static readonly string _path = "/sys25d";
     private readonly string _username;
 
-    public static async Task Connect()
+    public ChatClient(string username)
     {
-        _client = new SocketIO(uri: "wss://api.leetcode.se", new SocketIOOptions
-        {
-            Path = Path
-        });
-        
-        _client.On("chatMessage" , response =>
-        {
-            var receivedMessage = response.GetValue<string>();
-            Console.WriteLine(receivedMessage);
-        });
-        
-        _client.OnConnected += async (sender, eventArgs) =>
-        {
-            Console.WriteLine("Connected");
-        };
-        
-        _client.OnDisconnected += async (sender, eventArgs) =>
-        {
-            Console.WriteLine("Disconnected");
-        };
+        _username = username;
+        _client = new SocketIO("wss://api.leetcode.se", new SocketIOOptions { Path = _path });
+        RegisterEvents();
+    }
 
-        await _client.ConnectAsync();
-        await Task.Delay(1000);
-    }
-    
-    public      static async Task SendMessage(string message)
+    private void RegisterEvents()
     {
-      
-        // Console.WriteLine($"[Debug] Sending message: {message}");
-        await _client.EmitAsync("chatMessage", message);
-        Console.WriteLine("[Debug] Message sent");
+        _client.OnConnected += async (sender, e) =>
+        {
+            await _client.EmitAsync("join", _username);
+        };
         
+        _client.OnDisconnected += (sender, e) =>
+        {
+           Console.WriteLine("Disconnected from server"); 
+        };
+        
+        _client.On("chatmessage", (Action<SocketIOResponse>)(response =>
+        {
+            try
+            {
+                var chatMsg = response.GetValue<ChatMessage>(0);
+                if (chatMsg != null && chatMsg.UserName !=_username)
+                {
+                    DisplayMessage(chatMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error {ex.Message}");
+            }
+        }));
+
+        
+        _client.On("rStatus", response =>
+        {
+            var statusText = response.GetValue<string>();
+            var statusMsg = new StatusMessage { Status = statusText };
+            DisplayMessage(statusMsg);
+        });
+        
+        _client.On("join", response =>
+        {
+            var username = response.GetValue<string>();
+            var joinMsg = new SystemMessage 
+            { 
+                Event = "join", 
+                Username = username 
+            };
+            DisplayMessage(joinMsg);
+        });
+
+        _client.On("leave", response =>
+        {
+            try 
+            {
+                var username = response.GetValue<string>();
+                var leaveMsg = new SystemMessage    
+                { 
+                    Event = "leave", 
+                    Username = username 
+                };
+                DisplayMessage(leaveMsg);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Debug] Error: {ex.Message}");
+            }
+        });
     }
+        public async Task ConnectAsync()
+        {
+            await _client.ConnectAsync();
+            await Task.Delay(1000);
+        }
+
+        public async Task SendMessageAsync(string message)
+        {
+            var chatMessage = new ChatMessage
+            {
+                UserName = _username,
+                Message = message,
+            };
+            
+            Console.WriteLine(chatMessage.FormatDisplay());
+            await _client.EmitAsync("chatmessage", chatMessage);
+        }
+
+        public async Task DisconnectAsync()
+        {
+            await _client.EmitAsync("leave", _username);
+            await _client.DisconnectAsync();
+        }
+        private void DisplayMessage(BaseMessage message)
+        {
+            Console.Write("\r" + new string(' ', Console.WindowWidth - 1) + "\r"); 
+            Console.WriteLine(message.FormatDisplay());
+        }
 }
