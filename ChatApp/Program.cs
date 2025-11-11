@@ -107,10 +107,10 @@ class Program
         Console.WriteLine("║        aka THE VIBE GUIDE         ║");
         Console.WriteLine("╠═══════════════════════════════════╣");
         Console.WriteLine("║ 1: Respect the vibe.              ║");
-        Console.WriteLine("║ 2: Share, dont shout              ║");
-        Console.WriteLine("║ 3: Stay inspired, not expired     ║");
-        Console.WriteLine("║ 4: Help, dont heckle              ║");
-        Console.WriteLine("║ 4: Enjoy the flow                 ║");
+        Console.WriteLine("║ 2: Share, dont shout.             ║");
+        Console.WriteLine("║ 3: Stay inspired, not expired.    ║");
+        Console.WriteLine("║ 4: Help, dont heckle.             ║");
+        Console.WriteLine("║ 4: Enjoy the flow.                ║");
         Console.WriteLine("╚═══════════════════════════════════╝");
     }
 }
