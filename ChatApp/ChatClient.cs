@@ -6,7 +6,8 @@ public class ChatClient
     private readonly SocketIO _client;
     private static readonly string _path = "/sys25d";
     private readonly string _username;
-    private List<string> _usersOnline = new List<string>();
+    private readonly List<string> _usersOnline = new();
+    private static string _currentInput = "";
 
     public ChatClient(string username)
     {
@@ -17,12 +18,6 @@ public class ChatClient
 
     private void RegisterEvents()
     {
-        
-        _client.On("onlineUsers", response =>
-        {
-            var users = response.GetValue<string[]>();
-            _usersOnline = new List<string>(users);
-        });
         _client.OnConnected += async (sender, e) =>
         {
             await _client.EmitAsync("rJoin", _username);
@@ -130,6 +125,17 @@ public class ChatClient
         {
             Console.Write("\r" + new string(' ', Console.WindowWidth - 1) + "\r"); 
             Console.WriteLine(message.FormatDisplay());
+            Console.Write(_currentInput);
+        }
+
+        public static void UpdateCurrentInput(string input)
+        {
+            _currentInput = input;
+        }
+
+        public static void ClearCurrentInput()
+        {
+            _currentInput = "";
         }
 
         public int GetOnlineUserCount()
@@ -141,8 +147,5 @@ public class ChatClient
         {
             return new List<string>(_usersOnline);
         }
-        public async Task RequestOnlineUsersAsync()
-        {
-            await _client.EmitAsync("getOnlineUsers");
-        }
+    
 }
