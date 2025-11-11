@@ -6,6 +6,7 @@ public class ChatClient
     private readonly SocketIO _client;
     private static readonly string _path = "/sys25d";
     private readonly string _username;
+    private List<string> _usersOnline = new List<string>();
 
     public ChatClient(string username)
     {
@@ -16,6 +17,12 @@ public class ChatClient
 
     private void RegisterEvents()
     {
+        
+        _client.On("onlineUsers", response =>
+        {
+            var users = response.GetValue<string[]>();
+            _usersOnline = new List<string>(users);
+        });
         _client.OnConnected += async (sender, e) =>
         {
             await _client.EmitAsync("rJoin", _username);
@@ -56,13 +63,22 @@ public class ChatClient
         
         _client.On("rJoin", response =>
         {
-            var username = response.GetValue<string>();
-            var joinMsg = new SystemMessage 
-            { 
-                Event = "join", 
-                Username = username 
-            };
-            DisplayMessage(joinMsg);
+            try
+            {
+                var username = response.GetValue<string>(); 
+                _usersOnline.Add(username);
+                var joinMsg = new SystemMessage 
+                { 
+                    Event = "join", 
+                    Username = username 
+                };
+                DisplayMessage(joinMsg);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Join error: {ex.Message}");
+            }
+    
         });
 
         _client.On("rLeave", response =>
@@ -70,6 +86,7 @@ public class ChatClient
             try 
             {
                 var username = response.GetValue<string>();
+                _usersOnline.Remove(username);
                 var leaveMsg = new SystemMessage    
                 { 
                     Event = "leave", 
@@ -79,13 +96,15 @@ public class ChatClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Leave error: {ex.Message}");
             }
         });
+        
     }
         public async Task ConnectAsync()
         {
             await _client.ConnectAsync();
+            _usersOnline.Add(_username);
             await Task.Delay(1000);
         }
 
@@ -104,11 +123,26 @@ public class ChatClient
         public async Task DisconnectAsync()
         {
             await _client.EmitAsync("rLeave", _username);
+            _usersOnline.Remove(_username);
             await _client.DisconnectAsync();
         }
-        private void DisplayMessage(BaseMessage message)
+        private static void DisplayMessage(BaseMessage message)
         {
             Console.Write("\r" + new string(' ', Console.WindowWidth - 1) + "\r"); 
             Console.WriteLine(message.FormatDisplay());
+        }
+
+        public int GetOnlineUserCount()
+        {
+            return _usersOnline.Count;
+        }
+
+        public List<string> GetOnlineUsers()
+        {
+            return new List<string>(_usersOnline);
+        }
+        public async Task RequestOnlineUsersAsync()
+        {
+            await _client.EmitAsync("getOnlineUsers");
         }
 }

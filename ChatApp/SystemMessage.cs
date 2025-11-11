@@ -8,6 +8,6 @@ public class SystemMessage :BaseMessage
     public override string FormatDisplay()
     {
         var action = Event == "join" ? "joined" : "left";
-        return $"[{Timestamp}] [System] {Username} has {action} the chat";
+        return $"[{Timestamp}] {Username} has {action} the chat";
     }
 }
